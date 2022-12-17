@@ -1,0 +1,10 @@
+
+[jenkins_main]
+3.86.116.52
+
+[tomcat]
+3.93.234.157
+
+
+#optional
+[jenkins_nodes]

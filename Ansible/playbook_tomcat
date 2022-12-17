@@ -1,0 +1,60 @@
+---
+
+- name: Install Tomcat
+  hosts: tomcat
+  become: yes
+
+  vars:
+    download_url: https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.46/bin/apache-tomcat-9.0.46.tar.gz
+
+  tasks:
+  - name: Install Java
+    apt:
+      name: default-jre
+      update_cache: yes
+
+  - name: Add group 'tomcat'
+    group:
+      name: tomcat
+      state: present
+
+  - name: Add the user 'tomcat'
+    user:
+      name: tomcat
+      shell: /bin/false
+      group: tomcat
+      home: /opt/tomcat
+
+  - name: Create a Directory /opt/tomcat
+    file:
+      path: /opt/tomcat
+      state: directory
+      mode: 0755
+      owner: tomcat
+      group: tomcat
+
+  - name: Download Tomcat using unarchive
+    unarchive:
+      src: "{{download_url}}"
+      dest: /opt/tomcat
+      mode: 0755
+      remote_src: yes
+      group: tomcat
+      owner: tomcat
+
+  - name: Move files to the /opt/tomcat directory
+    shell: "mv /opt/tomcat/apache*/* /opt/tomcat"
+
+  - name: Allow port 22 SSH
+    ufw:
+      state: enabled
+      rule: allow
+      port: '22'
+      proto: tcp
+
+  - name: Allow port 8080 Tomcat
+    ufw:
+      rule: allow
+      port: 8080
+      proto: tcp
+
